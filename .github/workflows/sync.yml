@@ -18,7 +18,6 @@ jobs:
         with:
           token: ${{ secrets.SYNC_PAT }}
           path: 'target'
-          ref: ${{ github.head_ref }}
       - name: Checkout Source
         uses: actions/checkout@v3
         with:
@@ -43,7 +42,6 @@ jobs:
         run: |
           {
             cd target
-            git add .
             synced_files="$(git status --porcelain)"
 
             if [ -z "${synced_files}" ]; then
@@ -56,11 +54,7 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Commit and push
-        shell: bash
-        run: |
-          cd target
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          if git commit -m "[AUTO] Sync files"; then
-            git push
-          fi
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "[AUTO] Sync files"
+          repository: target
